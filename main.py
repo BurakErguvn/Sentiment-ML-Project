@@ -24,11 +24,13 @@ text_df= pd.DataFrame(text_series,columns=["Text"])
 text = text_series.to_string(index= False)
 words = text.split()
 if len(words) < 20:
-    delete = pd.Series(" ".join(text_df["Text"]).split()).value_counts()[-3:]
+    trash=0
+elif len(words) < 40:
+    delete = pd.Series(" ".join(text_df["Text"]).split()).value_counts()[-5:]
     text_series = text_df["Text"].apply(lambda x: " ".join(x for x in x.split() if x not in delete)) #deleting rare wordsdeleting rare words
-else:
+else :
     delete = pd.Series(" ".join(text_df["Text"]).split()).value_counts()[-10:]
-    text_series = text_df["Text"].apply(lambda x: " ".join(x for x in x.split() if x not in delete)) #deleting rare wordsdeleting rare words
+    text_series = text_df["Text"].apply(lambda x: " ".join(x for x in x.split() if x not in delete))
 text_df= pd.DataFrame(text_series,columns=["Text"])
 text_series= text_df["Text"].apply(lambda x: " ".join([Word(word).lemmatize() for word in x.split()]))#lemmatization
 text_df= pd.DataFrame(text_series,columns=["Text"])
@@ -50,19 +52,55 @@ if feedback == "[0]":
 else:
     print("\nTHİS SENTENCE IS POSITIVE")
     feedback = "Positive"
-print("Did I guess correctly? Y/N")
-conf2 = input()
-print("Do you want to save the data? Y/N")
-conf1 = input()
-if conf1 == "Y":
-    if conf2 == "Y":
-        new_df = pd.read_csv("opmin2.csv",usecols=["Text","Label"])
-        new_data = {"Text": text, "Label": feedback}
-        new_df.loc[len(new_df)] = new_data
-        new_df.to_csv("opmin2.csv")
-        new_org_df = pd.read_csv("org_opmin2.csv",usecols=["Text","Label"])
-        label_df = pd.DataFrame([feedback],columns=["Label"])
-        df_df= pd.concat([text_df,label_df],ignore_index= True,axis=1,)
-        df_df.columns =["Text","Label"]
-        new_org_df = pd.concat([new_org_df,df_df],ignore_index= True,axis=0)
-        new_org_df.to_csv("org_opmin2.csv")
+i = 0
+while i == 0:
+    print("\n-> Did I guess correctly? Y/N")
+    conf2 = input()
+    print("\n-> Do you want to save the data? Y/N")
+    conf1 = input()
+    if conf1 == "Y":
+        if conf2 == "Y":
+            new_df = pd.read_csv("opmin2.csv",usecols=["Text","Label"])
+            new_data = {"Text": text_orginal, "Label": feedback}
+            new_df.loc[len(new_df)] = new_data
+            new_df.to_csv("opmin2.csv")#Here we save the predicted sentence in a new csv file labelled as new data.
+            new_org_df = pd.read_csv("org_opmin2.csv",usecols=["Text","Label"])
+            label_df = pd.DataFrame([feedback],columns=["Label"])
+            df_df= pd.concat([text_df,label_df],ignore_index= True,axis=1,)
+            df_df.columns =["Text","Label"]
+            new_org_df = pd.concat([new_org_df,df_df],ignore_index= True,axis=0)
+            new_org_df.to_csv("org_opmin2.csv")#We save the organised version in a csv file.
+            print("\n>>Your data has been saved.")
+            break
+        elif conf2 == "N":
+                while i== 0:
+                        print("\n-> I guessed wrong, what's right? P/N")
+                        conf3 = input()
+                        if conf3 == "P":
+                            feedback= "Positive"
+                            break
+                        elif conf3 == "N":
+                            feedback= "Negative"
+                            break
+                        else:
+                            print("\n>>Please enter a valid character!!!")
+                new_df = pd.read_csv("opmin2.csv",usecols=["Text","Label"])
+                new_data = {"Text": text_orginal, "Label": feedback}
+                new_df.loc[len(new_df)] = new_data
+                new_df.to_csv("opmin2.csv")#Here we save the predicted sentence in a new csv file labelled as new data.
+                new_org_df = pd.read_csv("org_opmin2.csv",usecols=["Text","Label"])
+                label_df = pd.DataFrame([feedback],columns=["Label"])
+                df_df= pd.concat([text_df,label_df],ignore_index= True,axis=1,)
+                df_df.columns =["Text","Label"]
+                new_org_df = pd.concat([new_org_df,df_df],ignore_index= True,axis=0)
+                new_org_df.to_csv("org_opmin2.csv")#We save the organised version in a csv file.
+                print("\n>>Your data has been saved.")
+                break
+        else:
+            print("\n>>Please enter a valid character!!!")
+    elif conf1 == "N":
+            print("\n>>Okay, I didn't save the data.")
+            break
+    else:
+        print("\n>>Please enter a valid character!!!")
+#This loop may have been a little primitive.
